@@ -12,8 +12,8 @@ class FriendMessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(10),
-      padding: EdgeInsets.all(15),
+      margin:const EdgeInsets.only(right: 80 , top: 15),
+      padding:const EdgeInsets.all(15),
       decoration:const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF4382d8),Color(0xFF2facd6),Color(0xFF2facd6),Color(0xFF2facd6),Color(0xFF2facd6)],
@@ -27,7 +27,7 @@ class FriendMessageCard extends StatelessWidget {
         )
       ),
       child:Text('${message.body}' , 
-        style: TextStyle( 
+        style:const TextStyle( 
           fontSize: 17 , 
           color: Colors.white
         ),

@@ -11,8 +11,8 @@ class MyMessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(10),
-      padding: EdgeInsets.all(15),
+      margin:const EdgeInsets.only(left: 80, top: 15),
+      padding:const EdgeInsets.all(15),
       decoration:const BoxDecoration(   
         color: Color.fromARGB(255, 114, 216, 118),   
         borderRadius: BorderRadius.only(
@@ -22,7 +22,7 @@ class MyMessageCard extends StatelessWidget {
         )
       ),
       child: Text('${message.body}' , 
-        style: TextStyle( 
+        style:const TextStyle( 
           fontSize: 17 , 
           color: Colors.black
         ),

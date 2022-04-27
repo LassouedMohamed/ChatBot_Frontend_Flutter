@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:chat_app/models/conversations_model.dart';
 import 'package:chat_app/models/message_model.dart';
+import 'package:chat_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:chat_app/services/conversations_service.dart';
 import 'package:flutter/cupertino.dart';
 
 class ConversationProvider extends ChangeNotifier {
-
+  AuthProvider _authProvider = AuthProvider();
   ConversationService _conversationService = ConversationService();
 
   List<ConversationModel> _conversations = [];
@@ -25,29 +26,38 @@ class ConversationProvider extends ChangeNotifier {
 
   Future <List<ConversationModel>> getConversation(String? token) async{
     Map<String, dynamic> mapData = {};
-    List <dynamic> ListData = [];
+    List  ListData = [];
     setBusy(true);
     http.Response response = await _conversationService.getConversations(token);
+    
     if(response.statusCode ==200){
-      mapData = jsonDecode(response.body);
-      ListData = mapData['data'];
-      if(_conversations.isNotEmpty){
-        if(ListData.length == _conversations.length){
-           _conversations=[];
-          ListData.forEach((element){
-            _conversations.add(ConversationModel.fromJson(element)); 
-          });
-        }else{
-          _conversations=[];
-          ListData.forEach((element){
-            _conversations.add(ConversationModel.fromJson(element)); 
-          });
+      try{
+        mapData = jsonDecode(response.body);
+        ListData = mapData['data'];
+        if(_conversations.isNotEmpty){
+          
+          if(ListData.length == _conversations.length){ 
+            _conversations=[];
+            for (var element in ListData) {
+              _conversations.add(ConversationModel.fromJson(element)); 
+            }
+          }else{
+            _conversations=[];
+            for (var element in ListData) {
+              _conversations.add(ConversationModel.fromJson(element)); 
+            }
+          }
+        }else{     
+            
+        for (var element in ListData) {
+          _conversations.add(ConversationModel.fromJson(element));
         }
-      }else{        
-      ListData.forEach((element)=> _conversations.add(ConversationModel.fromJson(element)));
+        }
+        notifyListeners();
+        setBusy(false);
+      }catch(e){
+        print(e);
       }
-      notifyListeners();
-      setBusy(false);
     }
     setBusy(false);
     return _conversations;
@@ -80,6 +90,33 @@ class ConversationProvider extends ChangeNotifier {
       _conversations[i] = _conversations[i-1];
       _conversations[i-1]=x;
     }
+  }
+
+  Future<void>makeConversationAsReaded(int? idConversation,String? token)async{
+    http.Response response = await _conversationService.makeConversationRead(idConversation,token);
+    if( response.statusCode ==200){
+      try{
+        var data = jsonDecode(response.body);
+        print("$data");
+      }catch(e){
+        print("$e");
+      }
+    }
+  }
+
+  Future addConversation(token ,id)async{
+    try{
+      http.Response response = await _conversationService.addConversation(token, id);
+      if(response.statusCode==200){
+        print("${response.body}");
+      }
+      if(response.statusCode==201){
+        print("${response.body}");
+      }
+    }catch(_){
+
+    }
+
   }
 
 }

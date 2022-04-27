@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:chat_app/conversation.dart';
 import 'package:chat_app/friend_message_card.dart';
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/my_message_card.dart';
@@ -21,26 +20,31 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
+  int? idUser;
   List<MessageModel> _conversation =[];
-  final ScrollController _scrollController = ScrollController();
   late MessageModel message ;
   List<MessageModel> _conversationsUpdated =[];
   bool isReelTime = false ;
   var _timer;
+  final ScrollController _scrollController = ScrollController();
   String? _token;
   @override
   void initState() {
     
-    message =MessageModel(createdAt: "", updatedAt : "");
+    message =MessageModel();
     message.conversationId =  widget.conversation.id;
     
       WidgetsBinding.instance!.addPostFrameCallback((timeStamp)async{
         _token = await Provider.of<AuthProvider>(context , listen: false).tokens;
+        idUser = await Provider.of<AuthProvider>(context, listen: false).user?.id;
         if(mounted){
         _timer=Timer.periodic(const Duration(seconds: 1), realTimeConversations) ;
+        Future.delayed(const Duration(seconds: 2), (){
+          if(_scrollController.positions.isNotEmpty){
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);}
+        });
         }
       });
-    
     super.initState();
     //notification
     // NotificationApiModel.init();
@@ -56,23 +60,31 @@ class _ChatState extends State<Chat> {
   final TextEditingController _messageController = TextEditingController();
 
 
-  realTimeConversations(Timer t){
-    List<ConversationModel> _conv=Provider.of<ConversationProvider>(context , listen: false).conversations;
+  realTimeConversations(Timer t)async{
+    List<ConversationModel> _conv= await Provider.of<ConversationProvider>(context , listen: false).conversations;
     var conversationsUpdated = _conv.firstWhere((element) => element.id == widget.conversation.id) ;
     setState(() {
       _conversationsUpdated=conversationsUpdated.messages.reversed.toList();
     });
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent );
+    if(_scrollController.positions.isNotEmpty){
+      if(_scrollController.position.pixels ==_scrollController.position.maxScrollExtent){
+        if(_conversationsUpdated.last.read.toString()=='0'){
+          if(_conversationsUpdated.last.userId != idUser){
+            Provider.of<ConversationProvider>(context , listen: false).makeConversationAsReaded(_conversationsUpdated.last.conversationId, _token);
+          }
+        }
+      }
+
+    }
   }
   @override
   void dispose() {
     _timer.cancel();
-    // TODO: implement dispose
     super.dispose();
   }
   @override
   Widget build(BuildContext context) {
-    _conversation = _conversationsUpdated;
+    _conversation = _conversationsUpdated;    
     
     return Scaffold(
       appBar: AppBar(
@@ -89,14 +101,46 @@ class _ChatState extends State<Chat> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child:_conversation.isEmpty? Center(child: Text("Loading ...")):ListView.builder(
+              child:_conversation.isEmpty? Container():ListView.builder(
                 controller: _scrollController,
                 itemCount: _conversation.length,
-                itemBuilder: (context,index)=> _conversation[index].userId == widget.conversation.user!.id ?
-                FriendMessageCard(message : _conversation[index])  : MyMessageCard(message : _conversation[index]) 
-                ),
+                itemBuilder: (context,index){
+                  return _conversation[index].userId != idUser ?
+                  FriendMessageCard(message : _conversation[index])  : MyMessageCard(message : _conversation[index]) ;
+                }
+              ),
             ),
+          ),
+          _conversation.isEmpty? Container():
+          _conversation.last.read=='1'? Container():
+          _conversation.last.userId == idUser ? Container():
+          _scrollController.positions.isEmpty ? Container():
+          _scrollController.position.pixels+15 >= _scrollController.position.maxScrollExtent ?
+          Container() :
+          InkWell(
+            onTap: ()async{
+              _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+              await Provider.of<ConversationProvider>(context , listen: false).makeConversationAsReaded(_conversation.last.conversationId, _token);
+               
+            },
+            child: Container(
+              width: 250,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow:const [
+                  BoxShadow(
+                    color: Color.fromARGB(255, 92, 209, 230),
+                    blurRadius: 10,
+                    offset: Offset(1, 1), // Shadow position
+                  ),
+                ],
+              ),
+              child: Center(child: Text("${_conversation.last.body} ")
+              ),
             ),
+          ),
           Container(
             padding:const EdgeInsets.all(12),
             margin:const EdgeInsets.all(12),
@@ -133,7 +177,7 @@ class _ChatState extends State<Chat> {
                       if(_messageController.text.trim().isEmpty) return ;
                       message.body = _messageController.text.trim();
                       await Provider.of<ConversationProvider>(context, listen: false).sendMessages(message,_token);                    
-                      _scrollController.jumpTo(_scrollController.position.maxScrollExtent +50 );
+                      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
                       _messageController.clear();
                       // NotificationApiModel.showNotification(
                       //   title: '${widget.conversation.user!.name}',

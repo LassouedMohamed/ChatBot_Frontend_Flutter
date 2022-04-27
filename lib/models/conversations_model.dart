@@ -1,35 +1,43 @@
-
-import 'dart:convert';
-
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 
 class ConversationModel {
   int? id;
   UserModel? user;
-  late String createdAt;
+  String? createdAt;
   List<MessageModel> messages =[];
 
-  ConversationModel({this.id, this.user, required this.createdAt, required this.messages});
+  ConversationModel({this.id, this.user,  this.createdAt, required this.messages});
 
   ConversationModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    user = json['user'] != null ? new UserModel.fromJson(json['user']) : null;
-    createdAt = json['created_at'];    
-    json['messages'].forEach((element) {
+    
+    user = json['user'] != null ?UserModel.fromJson(json['user']) : null;
+    
+    createdAt = json['created_at'].toString();  
+     
+    if(json['messages'] !=null){
+      
+      for(var element in json['messages']){
         messages.add(MessageModel.fromJson(element));
-      });   
+      }
+      //  json['messages'].forEach((element) {
+      //    print("${json['messages'][0]}");
+      //   // messages!.add(MessageModel.fromJson(element));        
+      // });   
+    }  
+   
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    if (this.user != null) {
-      data['user'] = this.user!.toJson();
+    final Map<String, dynamic> data = {};
+    data['id'] = id;
+    if (user != null) {
+      data['user'] = user!.toJson();
     }
-    data['created_at'] = this.createdAt;
-    if (this.messages != null) {
-      data['messages'] = this.messages.map((v) => v.toJson()).toList();
+    data['created_at'] = createdAt;
+    if (messages != null) {
+      data['messages'] = messages.map((v) => v.toJson()).toList();
     }
     return data;
   }

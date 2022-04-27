@@ -10,34 +10,48 @@ class AuthProvider extends ChangeNotifier {
   bool _busy = false ;
   String? _token ;
   UserModel? _user;
+  List<UserModel> _allUsers =[];
+
+  List<UserModel> get allUsers => _allUsers;
   String? get tokens => _token;
   bool get busy => _busy;
   UserModel? get user =>_user;
+  
   setBusy(bool val){
     _busy = val;
     notifyListeners();
   }
 
-  Future <bool>getUser()async{
-    setBusy(true);
-    bool tokenExist = await getToken();
-    if(tokenExist){
-      final prefs = await SharedPreferences.getInstance();
-      String? prefsToken = prefs.getString('acces_token');
-      http.Response response = await _authService.getUser(prefsToken);
-      if(response.statusCode == 200){
-        var data = jsonDecode(response.body);
-        String token = data['token'];
-        _token = token;
-        saveToken(token);
-        return true; 
-      }else{
-        setBusy(false);
-        return false;
+  Future getUser()async{
+    try{
+      setBusy(true);
+      bool tokenExist = await getToken();
+      if(tokenExist){
+        final prefs = await SharedPreferences.getInstance();
+        String? prefsToken = prefs.getString('acces_token');
+        http.Response response = await _authService.getUser(prefsToken);
+        if(response.statusCode == 200){
+          try{
+            var data = jsonDecode(response.body);
+            String token = data['token'];
+            _user = UserModel.fromJson(data['user']);
+            _token = token;
+            saveToken(token);
+            return true; 
+          }catch(e){
+            print("$e");
+          }
+        }else{
+          setBusy(false);
+          return false;
+        }
       }
+      setBusy(false);
+      return false; 
+
+    }catch(_){
+
     }
-    setBusy(false);
-    return false; 
   }
 
   Future <bool> getToken() async{
@@ -57,7 +71,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future <bool> login(String email, String password) async{
     http.Response response = await _authService.login(email.trim(), password.trim());
-    if(response.statusCode ==200){
+    if(response.statusCode ==200){  
       var data = jsonDecode(response.body);
       String token = data['token'];
       _user = UserModel.fromJson(data['user']);
@@ -68,9 +82,27 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  Future<void> logout() async{
-    await _authService.logout();
+  Future <void> logout() async{
+    await _authService.logout(_token);
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('acces_token');
+    
   }
+
+  Future <void> getAllUsers()async{
+    try{
+      http.Response response = await _authService.getAllUser(_token);
+      
+      if(response.statusCode ==200){  
+        var data = jsonDecode(response.body);
+        _allUsers =[];
+        data.forEach((element)=> _allUsers.add(UserModel.fromJson(element)));
+
+      }
+    }catch(_){
+
+    }
+  }
+
+
 }
