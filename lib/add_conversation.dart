@@ -1,3 +1,5 @@
+import 'package:chat_app/chat.dart';
+import 'package:chat_app/conversation_card.dart';
 import 'package:chat_app/models/user_model.dart';
 import 'package:chat_app/providers/auth_provider.dart';
 import 'package:chat_app/providers/conversation_provider.dart';
@@ -13,11 +15,11 @@ class AddConversations extends StatefulWidget {
 
 class _AddConversationsState extends State<AddConversations> {
 
-
+  String? _token;
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) { 
-
+    _token = Provider.of<AuthProvider>(context,listen: false).tokens;
     Provider.of<AuthProvider>(context,listen: false).getAllUsers();
     });
     super.initState();
@@ -36,7 +38,14 @@ class _AddConversationsState extends State<AddConversations> {
             subtitle: Text("${listUsers[index].email}"),
             trailing: InkWell(
               onTap: () async{
-                // Provider.of<ConversationProvider>(context,listen: false);
+               await Provider.of<ConversationProvider>(context,listen: false).addConversation(_token, listUsers[index].id);
+              //  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (builder)=>ConversationCard(
+              //   conversation: provider.conversations[index],
+              //   onTapConversation :(){Navigator.push(context ,MaterialPageRoute(
+              //     builder: (context)=> Chat(conversation:provider.conversations[index])
+              //     ));               
+              //   }              
+              // )), (route) => false);
               },
               child: Icon(Icons.add)
               ),

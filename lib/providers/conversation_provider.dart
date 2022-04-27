@@ -108,10 +108,12 @@ class ConversationProvider extends ChangeNotifier {
     try{
       http.Response response = await _conversationService.addConversation(token, id);
       if(response.statusCode==200){
-        print("${response.body}");
+        var data = jsonDecode(response.body);
+        print("${data['data']}");
       }
       if(response.statusCode==201){
-        print("${response.body}");
+        var data = jsonDecode(response.body);
+        print("${data['data']}");
       }
     }catch(_){
 

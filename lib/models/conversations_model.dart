@@ -17,14 +17,9 @@ class ConversationModel {
     createdAt = json['created_at'].toString();  
      
     if(json['messages'] !=null){
-      
       for(var element in json['messages']){
         messages.add(MessageModel.fromJson(element));
       }
-      //  json['messages'].forEach((element) {
-      //    print("${json['messages'][0]}");
-      //   // messages!.add(MessageModel.fromJson(element));        
-      // });   
     }  
    
   }
