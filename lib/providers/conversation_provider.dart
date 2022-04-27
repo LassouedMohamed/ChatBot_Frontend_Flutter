@@ -55,8 +55,8 @@ class ConversationProvider extends ChangeNotifier {
         }
         notifyListeners();
         setBusy(false);
-      }catch(e){
-        print(e);
+      }catch(_){
+        
       }
     }
     setBusy(false);
@@ -97,23 +97,22 @@ class ConversationProvider extends ChangeNotifier {
     if( response.statusCode ==200){
       try{
         var data = jsonDecode(response.body);
-        print("$data");
-      }catch(e){
-        print("$e");
+      }catch(_){
+        
       }
     }
   }
 
-  Future addConversation(token ,id)async{
+  Future addConversation(token , id)async{
     try{
       http.Response response = await _conversationService.addConversation(token, id);
       if(response.statusCode==200){
         var data = jsonDecode(response.body);
-        print("${data['data']}");
+        return data['data'];
       }
       if(response.statusCode==201){
         var data = jsonDecode(response.body);
-        print("${data['data']}");
+        return data['data'];
       }
     }catch(_){
 

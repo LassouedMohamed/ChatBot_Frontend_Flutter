@@ -1,6 +1,7 @@
 import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/models/user_model.dart';
 
+
 class ConversationModel {
   int? id;
   UserModel? user;

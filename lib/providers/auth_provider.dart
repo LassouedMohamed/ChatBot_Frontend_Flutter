@@ -22,8 +22,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future getUser()async{
-    try{
+  Future <bool> getUser()async{
+    
       setBusy(true);
       bool tokenExist = await getToken();
       if(tokenExist){
@@ -49,9 +49,7 @@ class AuthProvider extends ChangeNotifier {
       setBusy(false);
       return false; 
 
-    }catch(_){
-
-    }
+    
   }
 
   Future <bool> getToken() async{
@@ -95,7 +93,6 @@ class AuthProvider extends ChangeNotifier {
       
       if(response.statusCode ==200){  
         var data = jsonDecode(response.body);
-        _allUsers =[];
         data.forEach((element)=> _allUsers.add(UserModel.fromJson(element)));
 
       }
@@ -103,6 +100,7 @@ class AuthProvider extends ChangeNotifier {
 
     }
   }
+  
 
 
 }

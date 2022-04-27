@@ -41,7 +41,8 @@ class _ChatState extends State<Chat> {
         _timer=Timer.periodic(const Duration(seconds: 1), realTimeConversations) ;
         Future.delayed(const Duration(seconds: 2), (){
           if(_scrollController.positions.isNotEmpty){
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);}
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+          }
         });
         }
       });
@@ -115,7 +116,7 @@ class _ChatState extends State<Chat> {
           _conversation.last.read=='1'? Container():
           _conversation.last.userId == idUser ? Container():
           _scrollController.positions.isEmpty ? Container():
-          _scrollController.position.pixels+15 >= _scrollController.position.maxScrollExtent ?
+          _scrollController.position.pixels +15 >= _scrollController.position.maxScrollExtent ?
           Container() :
           InkWell(
             onTap: ()async{
@@ -177,7 +178,7 @@ class _ChatState extends State<Chat> {
                       if(_messageController.text.trim().isEmpty) return ;
                       message.body = _messageController.text.trim();
                       await Provider.of<ConversationProvider>(context, listen: false).sendMessages(message,_token);                    
-                      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                      _scrollController.jumpTo(_scrollController.position.maxScrollExtent+15);
                       _messageController.clear();
                       // NotificationApiModel.showNotification(
                       //   title: '${widget.conversation.user!.name}',

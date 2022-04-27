@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 
 import '../models/message_model.dart';
 class ConversationService {
-  Future getConversations(String? token) async{
-    try{
+  Future <http.Response> getConversations(String? token) async{
+    
       http.Response response = await http.get(
         Uri.parse('http://10.0.2.2:8000/api/conversation'),
         headers: {
@@ -14,13 +14,11 @@ class ConversationService {
 
       return response;
 
-    }catch(_){
-      
-    }
+    
   }
 
-  Future addConversation(token , id)async{
-    try{
+  Future <http.Response> addConversation(token , id)async{
+    
       http.Response response =await http.post(
         Uri.parse('http://10.0.2.2:8000/api/conversation'),
           headers: {
@@ -33,13 +31,11 @@ class ConversationService {
         ) ;
 
       return response;
-    }catch(_){
-
-    }
+    
   }
 
-  Future sendMessage(MessageModel message , String? token)async{
-    try{
+  Future <http.Response> sendMessage(MessageModel message , String? token)async{
+    
       http.Response response = await http.post(
         Uri.parse("http://10.0.2.2:8000/api/message"),
         headers: {
@@ -54,13 +50,10 @@ class ConversationService {
         );
       return response;
 
-    }catch(_){
-      
-    }
   }
 
-  Future makeConversationRead(int? idConversation,String? token)async{
-    try{
+  Future <http.Response> makeConversationRead(int? idConversation,String? token)async{
+    
 
       http.Response response = await http.post(
         Uri.parse("http://10.0.2.2:8000/api/conversation/read"),
@@ -75,9 +68,7 @@ class ConversationService {
 
       return response;
 
-    }catch(_){
-      
-    }
+    
   }
 
 }
